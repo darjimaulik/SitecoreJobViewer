@@ -21,66 +21,67 @@
     <link rel="Stylesheet" type="text/css" href="/sitecore/shell/themes/standard/default/WebFramework.css" />
     <link rel="Stylesheet" type="text/css" href="./default.css" />
 
-            <style type="text/css">
-            td {
-                border: solid 1px grey;   
-                border-spacing: 2px;
-                border-collapse: separate;
-                width: 100%;
-                padding: 5px;
-            }
+    <style type="text/css">
+        body {
+            background-color: #fff;
+        }
 
-            thead {
-                font-weight: bold;
-            }
-            
-/*            .category {
-                width: 25px;
-                text-align: right;
-            }      */
-                     
-            .category {
-                width: 50px;
-            }     
-                       
-            .Job {
-                width: 50%;
-                word-break: break-all;
-            }    
-                        
-            .status .queuetime .processed {
-                width: 50px;
-                text-align: center;
-            }   
-                                          
-            .priority {
-                width: 80px;
-            }                 
+        .content {
+            background-color: #fff;
+            margin: 0 auto; 
+        }
+        hr {
+            background-color: #0ff;
+            border: 1px solid #f0f;
+            padding:5px;
 
-/*               <td class="Job">Job</td>
-                            <td class="category">Category</td>
-                            <td class="status">Status</td>
-                            <td class="processed">Processed</td>
-                            <td class="queuetime">QueueTime</td>
-                            <td class="priority">Priority</td>*/
+        }
+        table {
+            width: 100%;
+            margin: 0 auto; 
+        }
+        td {
+            border-spacing: 1px;
+            border-collapse: collapse;
+            padding: 2px;
+            color: #000
+        }
+        thead {
+            background-color: antiquewhite;
+            font-weight: bold;
+        }
+        .category {
+            width: 50px;
+        }
+        .Job {
+            width: 50%;
+            word-break: break-all;
+        }
 
+        .status, .queuetime, .processed {
+            width: 50px;
+            text-align: center;
+        }
 
-            </style>
+        .priority {
+            width: 80px;
+        }
+    </style>
 </head>
 <body style="font-size: 14px">
-        <form id="Form1" runat="server" >
-        <div class="wf-content1">
+    <form id="Form1" runat="server">
+        <div class="wf-content">
 
-        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
-            <h1>
-                <a href="/sitecore/admin/">Administration Tools</a> - Jobs Viewer
-            </h1>
-            <br />
-            <asp:Literal runat="server" ID="lt"></asp:Literal>
-            <br />
+            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+                <h1>
+                    <a href="/sitecore/admin/">Administration Tools</a> - Jobs Viewer
+                </h1>
+                <br />
+                <asp:Literal runat="server" ID="lt"></asp:Literal>
+                <br />
                 <asp:Button ID="btnRefresh" runat="server" Text="Refresh" BackColor="Green" ForeColor="White" Width="100px" Height="30px" />
             </div>
-            
+
             <script type="text/javascript">
                 function getQueryString() {
                     var result = {}, queryString = location.search.substring(1), re = /([^&=]+)=([^&]*)/g, m;
@@ -97,165 +98,162 @@
                     setTimeout("document.location.href = document.location.href;", c);
                 }
             </script>
-        </div>
             <hr />
-        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
-            <div style="float: left; width: 200px; padding-top: 4px">
-                <h2>Running Jobs</h2>
-            </div>
-            
-            <div style="clear: both; height: 1px">&nbsp;</div>
-        </div>
-            
+            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+                <div style="float: left; width: 200px; padding-top: 4px">
+                    <h2>Running Jobs</h2>
+                </div>
 
-        <div style="padding-top: 0px">
-            <asp:Repeater ID="repJobs" runat="server" DataSource="<%# Jobs %>">
-                <HeaderTemplate>
-                    <table style="width: 100%">
-                        <thead style="background-color: #fff">
-                            <td class="job">Job</td>
-                            <td class="category">Category</td>
-                            <td class="status">Status</td>
-                            <td class="processed">Processed</td>
-                            <td class="queuetime">QueueTime</td>
-                            <td class="priority">Priority</td>
-                        </thead>
-                </HeaderTemplate>
-                <FooterTemplate>
-                    </table>
-                </FooterTemplate>
-                <ItemTemplate>
-                    <tr style="background-color: beige; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
-                        <td class="Job">
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
-                        </td>
-                        <td class="category">
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
-                        </td>
-                        <td class="status">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
-                        </td>
-                        <td class="processed">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Processed %> /
-                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Total %>
-                        </td>
-                        <td class="queuetime">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
-                        </td>
-                        <td class="priority">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
-                        </td>
-                       
-                    </tr>
-                </ItemTemplate>
-            </asp:Repeater>
-        </div>
+                <div style="clear: both; height: 1px">&nbsp;</div>
+            </div>
+
+
+            <div >
+                <asp:Repeater ID="repJobs" runat="server" DataSource="<%# Jobs %>">
+                    <HeaderTemplate>
+                        <table>
+                            <thead>
+                                <td class="job">Job</td>
+                                <td class="category">Category</td>
+                                <td class="status">Status</td>
+                                <td class="processed">Processed</td>
+                                <td class="queuetime">QueueTime</td>
+                                <td class="priority">Priority</td>
+                            </thead>
+                    </HeaderTemplate>
+                    <FooterTemplate>
+                        </table>
+                    </FooterTemplate>
+                    <ItemTemplate>
+                        <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                            <td class="Job">
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                            </td>
+                            <td class="category">
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
+                            </td>
+                            <td class="status">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
+                            </td>
+                            <td class="processed">
+                                <%# GetProcessed(Container.DataItem as Sitecore.Jobs.Job) %>
+                            </td>
+                            <td class="queuetime">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
+                            </td>
+                            <td class="priority">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
+                            </td>
+
+                        </tr>
+                    </ItemTemplate>
+                </asp:Repeater>
+            </div>
             <hr />
-        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
-            <div style="float: left; width: 200px; padding-top: 4px">
-                <h2>Queued Jobs</h2>
+            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+                <div style="float: left; width: 200px; padding-top: 4px">
+                    <h2>Queued Jobs</h2>
+                </div>
+
+                <div style="clear: both; height: 1px">&nbsp;</div>
             </div>
-            
-            <div style="clear: both; height: 1px">&nbsp;</div>
-        </div>
-            
 
-        <div style="padding-top: 0px">
-            <asp:Repeater ID="repQueued" runat="server" DataSource="<%# QueuedJobs %>">
-                <HeaderTemplate>
-                    <table style="width: 100%">
-                        <thead style="background-color: #fff">
-                            <td class="job">Job</td>
-                            <td class="category">Category</td>
-                            <td class="status">Status</td>
-                            <td class="processed">Processed</td>
-                            <td class="queuetime">QueueTime</td>
-                            <td class="priority">Priority</td>
 
-                            <td>Increase Priority</td>
-                        </thead>
-                </HeaderTemplate>
-                <FooterTemplate>
-                    </table>
-                </FooterTemplate>
-                <ItemTemplate>
-                    <tr style="background-color: beige; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
-                        <td class="Job">
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
-                        </td>
-                        <td class="category">
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
-                        </td>
-                        <td class="status">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
-                        </td>
-                        <td class="processed">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Processed %> /
-                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Total %>
-                        </td>
-                        <td class="queuetime">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
-                        </td>
-                        <td class="priority">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
-                        </td>
-                        <td>
-                            <asp:Button ID="btnPriority" runat="server" Text="Priority UP" OnCommand="btn_Click" CommandName="btnPriority" CommandArgument='<%# Eval("Name") %>'
-                                BackColor="Blue" ForeColor="White" Width="100px" Height="30px" />
-                        </td>
-                    </tr>
-                </ItemTemplate>
-            </asp:Repeater>
-        </div>
+            <div style="padding-top: 0px">
+                <asp:Repeater ID="repQueued" runat="server" DataSource="<%# QueuedJobs %>">
+                    <HeaderTemplate>
+                        <table>
+                            <thead>
+                                <td class="job">Job</td>
+                                <td class="category">Category</td>
+                                <td class="status">Status</td>
+                                <td class="processed">Processed</td>
+                                <td class="queuetime">QueueTime</td>
+                                <td class="priority">Priority</td>
+
+                                <td>Increase Priority</td>
+                            </thead>
+                    </HeaderTemplate>
+                    <FooterTemplate>
+                        </table>
+                    </FooterTemplate>
+                    <ItemTemplate>
+                        <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                            <td class="Job">
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                            </td>
+                            <td class="category">
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
+                            </td>
+                            <td class="status">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
+                            </td>
+                            <td class="processed">
+                                <%# GetProcessed(Container.DataItem as Sitecore.Jobs.Job) %>
+                            </td>
+                            <td class="queuetime">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
+                            </td>
+                            <td class="priority">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
+                            </td>
+                            <td>
+                                <asp:Button ID="btnPriority" runat="server" Text="Priority UP" OnCommand="btn_Click" CommandName="btnPriority" CommandArgument='<%# Eval("Name") %>'
+                                    BackColor="Blue" ForeColor="White" Width="100px" Height="30px" />
+                            </td>
+                        </tr>
+                    </ItemTemplate>
+                </asp:Repeater>
+            </div>
             <hr />
-        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
-            <div style="float: left; width: 200px; padding-top: 4px">
-                <h2>Finished Jobs</h2>
+            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+                <div style="float: left; width: 200px; padding-top: 4px">
+                    <h2>Finished Jobs</h2>
+                </div>
+                <div style="clear: both; height: 1px">&nbsp;</div>
             </div>
-            <div style="clear: both; height: 1px">&nbsp;</div>
-        </div>
-            
-        <div style="padding-top: 0px">
-            <asp:Repeater ID="repFinished" runat="server" DataSource="<%# FinishedJobs %>">
-                <HeaderTemplate>
-                    <table style="width: 100%">
-                        <thead style="background-color: #fff">
-                            <td class="job">Job</td>
-                            <td class="category">Category</td>
-                            <td class="status">Status</td>
-                            <td class="processed">Processed</td>
-                            <td class="queuetime">QueueTime</td>
-                            <td class="priority">Priority</td>
 
-                        </thead>
-                </HeaderTemplate>
-                <FooterTemplate>
-                    </table>
-                </FooterTemplate>
-                <ItemTemplate>
-                    <tr style="background-color: beige; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
-                        <td class="Job">
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
-                        </td>
-                        <td class="category">
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
-                        </td>
-                        <td class="status">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
-                        </td>
-                        <td class="processed">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Processed %> /
-                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Total %>
-                        </td>
-                        <td class="queuetime">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
-                        </td>
-                        <td class="priority">
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
-                        </td>
-                    </tr>
-                </ItemTemplate>
-            </asp:Repeater>
+            <div style="padding-top: 0px">
+                <asp:Repeater ID="repFinished" runat="server" DataSource="<%# FinishedJobs %>">
+                    <HeaderTemplate>
+                        <table>
+                            <thead>
+                                <td class="job">Job</td>
+                                <td class="category">Category</td>
+                                <td class="status">Status</td>
+                                <td class="processed">Processed</td>
+                                <td class="queuetime">QueueTime</td>
+                                <td class="priority">Priority</td>
+
+                            </thead>
+                    </HeaderTemplate>
+                    <FooterTemplate>
+                        </table>
+                    </FooterTemplate>
+                    <ItemTemplate>
+                        <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                            <td class="Job">
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                            </td>
+                            <td class="category">
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
+                            </td>
+                            <td class="status">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
+                            </td>
+                            <td class="processed">
+                                <%# GetProcessed(Container.DataItem as Sitecore.Jobs.Job) %>
+                            </td>
+                            <td class="queuetime">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
+                            </td>
+                            <td class="priority">
+                                <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
+                            </td>
+                        </tr>
+                    </ItemTemplate>
+                </asp:Repeater>
+            </div>
         </div>
 
 
@@ -318,7 +316,17 @@
             sb.AppendLine(s);
         return sb.ToString();
     }
-
+    protected string GetProcessed(Sitecore.Jobs.Job job)
+    {
+        if (job.Status.Total > 0)
+        {
+            return job.Status.Processed + "/" + job.Status.Total;
+        }
+        else
+        {
+            return "0";
+        }
+    }
     protected string GetJobColor(Sitecore.Jobs.Job job)
     {
         if (job.IsDone)
