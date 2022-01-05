@@ -6,17 +6,270 @@
     Link to original code: https://briancaos.wordpress.com/2014/11/11/sitecore-job-viewer-see-what-sitecore-is-doing-behind-your-back/
 
     Name: Maulik Darji
-    Idea: I have extended Brian's idea of Sitecore Job viewer and added a code for updating the Priority of the Job
-        
-    
+    Idea: I have extended Brian's idea of Sitecore Job viewer. 
+            Added: Options for all the types of jobs in same page without extra click
+            Added a code for updating the Priority of the "Queued" Job
+   
 --%>
 
 
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<html>
+<head>
+    <title>Job Viewer by Maulik Darji</title>
+    <link rel="Stylesheet" type="text/css" href="/sitecore/shell/themes/standard/default/WebFramework.css" />
+    <link rel="Stylesheet" type="text/css" href="./default.css" />
+
+            <style type="text/css">
+            td {
+                border: solid 1px grey;   
+                border-spacing: 2px;
+                border-collapse: separate;
+                width: 100%;
+                padding: 5px;
+            }
+
+            thead {
+                font-weight: bold;
+            }
+            
+/*            .category {
+                width: 25px;
+                text-align: right;
+            }      */
+                     
+            .category {
+                width: 50px;
+            }     
+                       
+            .Job {
+                width: 50%;
+                word-break: break-all;
+            }    
+                        
+            .status .queuetime .processed {
+                width: 50px;
+                text-align: center;
+            }   
+                                          
+            .priority {
+                width: 80px;
+            }                 
+
+/*               <td class="Job">Job</td>
+                            <td class="category">Category</td>
+                            <td class="status">Status</td>
+                            <td class="processed">Processed</td>
+                            <td class="queuetime">QueueTime</td>
+                            <td class="priority">Priority</td>*/
+
+
+            </style>
+</head>
+<body style="font-size: 14px">
+        <form id="Form1" runat="server" >
+        <div class="wf-content1">
+
+        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+            <h1>
+                <a href="/sitecore/admin/">Administration Tools</a> - Jobs Viewer
+            </h1>
+            <br />
+            <asp:Literal runat="server" ID="lt"></asp:Literal>
+            <br />
+                <asp:Button ID="btnRefresh" runat="server" Text="Refresh" BackColor="Green" ForeColor="White" Width="100px" Height="30px" />
+            </div>
+            
+            <script type="text/javascript">
+                function getQueryString() {
+                    var result = {}, queryString = location.search.substring(1), re = /([^&=]+)=([^&]*)/g, m;
+                    while (m = re.exec(queryString)) {
+                        result[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+                    }
+
+                    return result;
+                }
+
+                var str = getQueryString()["refresh"];
+                if (str != undefined) {
+                    c = parseInt(str) * 1000;
+                    setTimeout("document.location.href = document.location.href;", c);
+                }
+            </script>
+        </div>
+            <hr />
+        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+            <div style="float: left; width: 200px; padding-top: 4px">
+                <h2>Running Jobs</h2>
+            </div>
+            
+            <div style="clear: both; height: 1px">&nbsp;</div>
+        </div>
+            
+
+        <div style="padding-top: 0px">
+            <asp:Repeater ID="repJobs" runat="server" DataSource="<%# Jobs %>">
+                <HeaderTemplate>
+                    <table style="width: 100%">
+                        <thead style="background-color: #fff">
+                            <td class="job">Job</td>
+                            <td class="category">Category</td>
+                            <td class="status">Status</td>
+                            <td class="processed">Processed</td>
+                            <td class="queuetime">QueueTime</td>
+                            <td class="priority">Priority</td>
+                        </thead>
+                </HeaderTemplate>
+                <FooterTemplate>
+                    </table>
+                </FooterTemplate>
+                <ItemTemplate>
+                    <tr style="background-color: beige; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                        <td class="Job">
+                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                        </td>
+                        <td class="category">
+                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
+                        </td>
+                        <td class="status">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
+                        </td>
+                        <td class="processed">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Processed %> /
+                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Total %>
+                        </td>
+                        <td class="queuetime">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
+                        </td>
+                        <td class="priority">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
+                        </td>
+                       
+                    </tr>
+                </ItemTemplate>
+            </asp:Repeater>
+        </div>
+            <hr />
+        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+            <div style="float: left; width: 200px; padding-top: 4px">
+                <h2>Queued Jobs</h2>
+            </div>
+            
+            <div style="clear: both; height: 1px">&nbsp;</div>
+        </div>
+            
+
+        <div style="padding-top: 0px">
+            <asp:Repeater ID="repQueued" runat="server" DataSource="<%# QueuedJobs %>">
+                <HeaderTemplate>
+                    <table style="width: 100%">
+                        <thead style="background-color: #fff">
+                            <td class="job">Job</td>
+                            <td class="category">Category</td>
+                            <td class="status">Status</td>
+                            <td class="processed">Processed</td>
+                            <td class="queuetime">QueueTime</td>
+                            <td class="priority">Priority</td>
+
+                            <td>Increase Priority</td>
+                        </thead>
+                </HeaderTemplate>
+                <FooterTemplate>
+                    </table>
+                </FooterTemplate>
+                <ItemTemplate>
+                    <tr style="background-color: beige; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                        <td class="Job">
+                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                        </td>
+                        <td class="category">
+                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
+                        </td>
+                        <td class="status">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
+                        </td>
+                        <td class="processed">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Processed %> /
+                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Total %>
+                        </td>
+                        <td class="queuetime">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
+                        </td>
+                        <td class="priority">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
+                        </td>
+                        <td>
+                            <asp:Button ID="btnPriority" runat="server" Text="Priority UP" OnCommand="btn_Click" CommandName="btnPriority" CommandArgument='<%# Eval("Name") %>'
+                                BackColor="Blue" ForeColor="White" Width="100px" Height="30px" />
+                        </td>
+                    </tr>
+                </ItemTemplate>
+            </asp:Repeater>
+        </div>
+            <hr />
+        <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+            <div style="float: left; width: 200px; padding-top: 4px">
+                <h2>Finished Jobs</h2>
+            </div>
+            <div style="clear: both; height: 1px">&nbsp;</div>
+        </div>
+            
+        <div style="padding-top: 0px">
+            <asp:Repeater ID="repFinished" runat="server" DataSource="<%# FinishedJobs %>">
+                <HeaderTemplate>
+                    <table style="width: 100%">
+                        <thead style="background-color: #fff">
+                            <td class="job">Job</td>
+                            <td class="category">Category</td>
+                            <td class="status">Status</td>
+                            <td class="processed">Processed</td>
+                            <td class="queuetime">QueueTime</td>
+                            <td class="priority">Priority</td>
+
+                        </thead>
+                </HeaderTemplate>
+                <FooterTemplate>
+                    </table>
+                </FooterTemplate>
+                <ItemTemplate>
+                    <tr style="background-color: beige; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                        <td class="Job">
+                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                        </td>
+                        <td class="category">
+                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
+                        </td>
+                        <td class="status">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
+                        </td>
+                        <td class="processed">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Processed %> /
+                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Total %>
+                        </td>
+                        <td class="queuetime">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
+                        </td>
+                        <td class="priority">
+                            <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
+                        </td>
+                    </tr>
+                </ItemTemplate>
+            </asp:Repeater>
+        </div>
+
+
+    </form>
+</body>
+</html>
 <script runat="server">
 
     void Page_Load(object sender, System.EventArgs e)
     {
         repJobs.DataBind();
+        repFinished.DataBind();
+        repQueued.DataBind();
+
         StringBuilder stringBuilder = new StringBuilder();
         this.ShowRefreshStatus(stringBuilder);
         this.lt.Text = stringBuilder.ToString();
@@ -27,9 +280,8 @@
     {
         get
         {
-            if (!cbShowFinished.Checked)
-                return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).OrderBy(job => job.QueueTime);
-            return Sitecore.Jobs.JobManager.GetJobs().OrderBy(job => job.QueueTime);
+            return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == true).OrderBy(job => job.QueueTime);
+
         }
     }
 
@@ -37,9 +289,7 @@
     {
         get
         {
-            if (!cbShowFinished.Checked)
-                return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).OrderBy(job => job.QueueTime);
-            return Sitecore.Jobs.JobManager.GetJobs().OrderBy(job => job.QueueTime);
+            return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).Where(job => job.Status.State == Sitecore.Jobs.JobState.Queued).OrderBy(job => job.QueueTime);
         }
     }
 
@@ -48,9 +298,7 @@
     {
         get
         {
-            if (!cbShowFinished.Checked)
-                return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).OrderBy(job => job.QueueTime);
-            return Sitecore.Jobs.JobManager.GetJobs().OrderBy(job => job.QueueTime);
+            return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).Where(job => job.Status.State != Sitecore.Jobs.JobState.Queued).OrderBy(job => job.QueueTime);
         }
     }
 
@@ -74,7 +322,13 @@
     protected string GetJobColor(Sitecore.Jobs.Job job)
     {
         if (job.IsDone)
+        {
             return "#737373";
+        }
+        else if (job.Status.State == Sitecore.Jobs.JobState.Queued)
+        {
+            return "#00f";
+        }
         return "#000";
     }
 
@@ -118,16 +372,6 @@
         {
             Response.Write("Current Job is not found");
         }
-
-        //bool btn0Clicked = btn == btnNewNumber0;
-        //btnNewNumber0.Visible = !btn0Clicked;
-        //btnNewNumber1.Visible = btn0Clicked;
-        //// now call your webservice, you have all you need here
-        //Label lblName = (Label)item.FindControl("lblName");
-        //Label lblSurname = (Label)item.FindControl("lblSurname");
-        //Label lblNumber = (Label)item.FindControl("lblNumber");
-        //DropDownList ddlColor = (DropDownList)item.FindControl("ddlColor");
-        // now call your webservice, you get the color-selection via ddlColor.SelectedValue
     }
 
     protected string IncreasePriority(string runningJobName)
@@ -155,131 +399,13 @@
         int.TryParse(this.Request.QueryString["refresh"], out result);
         stringBuilder.Append(string.Format("Last updated: {0}. ", (object)DateTime.Now.ToString((IFormatProvider)CultureInfo.InvariantCulture)));
         int[] numArray = new int[7] { 1, 2, 5, 10, 20, 30, 60 };
-        stringBuilder.Append(string.Format("Refresh each <a href='jobsView.aspx' class='refresh-link {0}'>No Refresh</a>", result == 0 ? (object)"refresh-selected" : (object)string.Empty));
+        stringBuilder.Append(string.Format("<br />Refresh each <a href='jobsView.aspx' class='refresh-link {0}'>No Refresh</a>", result == 0 ? (object)"refresh-selected" : (object)string.Empty));
         foreach (int num in numArray)
         {
             string str1 = result == num ? "refresh-selected" : string.Empty;
-            string str2 = string.Format(", <a href='jobsView.aspx?refresh={0}&finishedjobs={2}' class='refresh-link {1}'>{0} sec</a>", (object)num, (object)str1, cbShowFinished.Checked);
+            string str2 = string.Format(", <a href='jobsView.aspx?refresh={0}' class='refresh-link {1}'>{0} sec</a>", (object)num, (object)str1);
             stringBuilder.Append(str2);
         }
         stringBuilder.Append("<br /><br />");
     }
 </script>
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<html>
-<head>
-    <title>Job Viewer by Maulik Darji</title>
-    <link href="/default.css" rel="stylesheet">
-</head>
-<body style="font-size: 14px">
-    <form runat="server">
-        <div class="wf-content">
-            <h1>
-                <a href="/sitecore/admin/">Administration Tools</a> - Jobs Viewer
-            </h1>
-            <br />
-            <asp:Literal runat="server" ID="lt"></asp:Literal>
-            <script type="text/javascript">
-                function getQueryString() {
-                    var result = {}, queryString = location.search.substring(1), re = /([^&=]+)=([^&]*)/g, m;
-                    while (m = re.exec(queryString)) {
-                        result[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-                    }
-
-                    return result;
-                }
-
-                var str = getQueryString()["refresh"];
-                if (str != undefined) {
-                    c = parseInt(str) * 1000;
-                    setTimeout("document.location.href = document.location.href;", c);
-                }
-
-                var strFinishedJobs = getQueryString()["finishedjobs"];
-                if (strFinishedJobs != undefined) {
-                    if (strFinishedJobs == "True") {
-                        //   alert("finished jobs are shown");
-                        document.getElementById('<%=cbShowFinished.ClientID%>').checked = true;
-
-                    }
-                    else {
-                        //  alert("finished jobs are NOT shown");
-                        document.getElementById('<%=cbShowFinished.ClientID%>').checked = false;
-
-
-                    }
-                }
-
-            </script>
-        </div>
-        <div style="padding: 10px; background-color: #efefef; border-bottom: solid 1px #aaa; border-top: solid 1px white">
-            <div style="float: left; width: 200px; padding-top: 4px">
-                <asp:CheckBox ID="cbShowFinished" runat="server" Text="Show finished jobs" Checked="false" OnCheckedChanged="cbShowFinished_CheckedChanged" AutoPostBack="true" />
-            </div>
-            <div style="float: right;">
-                <asp:Button ID="btnRefresh" runat="server" Text="Refresh" BackColor="Green" ForeColor="White" Width="100px" Height="30px" />
-            </div>
-            <div style="clear: both; height: 1px">&nbsp;</div>
-        </div>
-
-        <div style="padding-top: 0px">
-            <asp:Repeater ID="repJobs" runat="server" DataSource="<%# Jobs %>">
-                <HeaderTemplate>
-                    <table style="width: 100%">
-                        <thead style="background-color: #eaeaea">
-                            <td>Job</td>
-                            <td>Category</td>
-                            <td>Status</td>
-                            <td>Processed</td>
-                            <td>QueueTime</td>
-                            <td>Priority</td>
-                            <td>Increase Priority</td>
-                        </thead>
-                </HeaderTemplate>
-                <FooterTemplate>
-                    </table>
-                </FooterTemplate>
-                <ItemTemplate>
-                    <tr style="background-color: beige; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
-                        <td>
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
-                        </td>
-                        <td>
-                            <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
-                        </td>
-                        <td>
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.State %>
-                        </td>
-                        <td>
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Processed %> /
-                <%# (Container.DataItem as Sitecore.Jobs.Job).Status.Total %>
-                        </td>
-                        <td>
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).QueueTime.ToLocalTime() %>
-                        </td>
-                        <td>
-                            <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
-                        </td>
-                        <td>
-                            <%--                            <%
-                                var currentJob = Container.DataItem as Sitecore.Jobs.Job;
-                                %>--%>
-                            <asp:Button ID="btnPriority" runat="server" Text="Priority UP" OnCommand="btn_Click" CommandName="btnPriority" CommandArgument='<%# Eval("Name") %>'
-                                BackColor="Blue" ForeColor="White" Width="100px" Height="30px" />
-
-
-                            <%--                            <asp:ImageButton ID="phImage" runat="server" ImageUrl='<%#"~/ImageHandler.ashx?id=" + DataBinder.Eval(Container.DataItem, "PhotoID")%>'  OnCommand="btn_Click" CommandName="btnPriority" CommandArgument='<%# Eval((Container.DataItem as Sitecore.Jobs.Job).Name) %>' />
-
-
-                            <asp:LinkButton ID="LinkButton1" runat="server" CommandName="Edit">Edit</asp:LinkButton>--%>
-
-                        </td>
-                    </tr>
-                </ItemTemplate>
-            </asp:Repeater>
-        </div>
-
-    </form>
-</body>
-</html>
