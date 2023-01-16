@@ -1,4 +1,7 @@
-<%@ Page Language="c#" EnableEventValidation="false" AutoEventWireup="true" %>
+<%@ Page Language="c#" Inherits="Sitecore.sitecore.admin.AdminPage" EnableEventValidation="false" AutoEventWireup="true" %>
+ 
+<%--<%@ Page Language="c#" EnableEventValidation="false" AutoEventWireup="true" %>--%>
+ 
 
 <%@ Import Namespace="System.Globalization " %>
 <%--
@@ -24,6 +27,9 @@
     <style type="text/css">
         body {
             background-color: #fff;
+
+            font-size:12px;
+
         }
 
         .content {
@@ -31,9 +37,8 @@
             margin: 0 auto; 
         }
         hr {
-            background-color: #0ff;
-            border: 1px solid #f0f;
-            padding:5px;
+
+            border: 1px solid #000;
 
         }
         table {
@@ -44,7 +49,8 @@
             border-spacing: 1px;
             border-collapse: collapse;
             padding: 2px;
-            color: #000
+
+            /*color: #000*/
         }
         thead {
             background-color: antiquewhite;
@@ -54,7 +60,8 @@
             width: 50px;
         }
         .Job {
-            width: 50%;
+
+            width: 100px;
             word-break: break-all;
         }
 
@@ -66,18 +73,55 @@
         .priority {
             width: 80px;
         }
+
+ 
+
+        .wf-container {
+
+            width: 90% !important;
+
+            margin: 0 auto;
+
+        }
+
+ 
+
+        .divTitle {
+
+            padding: 10px;
+
+            background-color: #fff;
+
+            border-bottom: solid 1px #aaa;
+
+            border-top: solid 1px white;
+
+            text-align: center;
+
+        }
+
     </style>
 </head>
 <body style="font-size: 14px">
-    <form id="Form1" runat="server">
-        <div class="wf-content">
 
-            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+    <form id="Form1" runat="server" class="wf-container">
+
+        <div class="wf-content content">
+
+ 
+
+            <div class="divTitle">
+
                 <h1>
                     <a href="/sitecore/admin/">Administration Tools</a> - Jobs Viewer
                 </h1>
                 <br />
                 <asp:Literal runat="server" ID="lt"></asp:Literal>
+
+                <br />
+
+                <asp:Literal runat="server" ID="ltlMessage"></asp:Literal>
+
                 <br />
                 <asp:Button ID="btnRefresh" runat="server" Text="Refresh" BackColor="Green" ForeColor="White" Width="100px" Height="30px" />
             </div>
@@ -98,8 +142,14 @@
                     setTimeout("document.location.href = document.location.href;", c);
                 }
             </script>
+
+            <br />
+
             <hr />
-            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+
+            <br />
+
+            <div class="divTitle">
                 <div style="float: left; width: 200px; padding-top: 4px">
                     <h2>Running Jobs</h2>
                 </div>
@@ -109,6 +159,7 @@
 
 
             <div >
+
                 <asp:Repeater ID="repJobs" runat="server" DataSource="<%# Jobs %>">
                     <HeaderTemplate>
                         <table>
@@ -123,11 +174,14 @@
                     </HeaderTemplate>
                     <FooterTemplate>
                         </table>
+
+                        <asp:Label ID="lblEmptyData" Text="No Data To Display" runat="server" Visible="false"> </asp:Label>
+
                     </FooterTemplate>
                     <ItemTemplate>
                         <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
                             <td class="Job">
-                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 500, true) %>
                             </td>
                             <td class="category">
                                 <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
@@ -150,17 +204,29 @@
                 </asp:Repeater>
             </div>
             <hr />
+            <br />
+            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
+                <div style="float: left; width: 200px; padding-top: 4px">
+                    <h2>There are <%= QueuedCount %> Queued Jobs</h2>
+                </div>
+
+                <div style="clear: both; height: 1px">&nbsp;</div>
+            </div>               
+            <br />
+            <hr />
+
+            <br />
+
             <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
                 <div style="float: left; width: 200px; padding-top: 4px">
                     <h2>Queued Jobs</h2>
                 </div>
 
                 <div style="clear: both; height: 1px">&nbsp;</div>
-            </div>
-
+            </div>               
 
             <div style="padding-top: 0px">
-                <asp:Repeater ID="repQueued" runat="server" DataSource="<%# QueuedJobs %>">
+                <asp:Repeater ID="repQueued" runat="server" DataSource="<%# Top100QueuedJobs %>">
                     <HeaderTemplate>
                         <table>
                             <thead>
@@ -171,16 +237,19 @@
                                 <td class="queuetime">QueueTime</td>
                                 <td class="priority">Priority</td>
 
-                                <td>Increase Priority</td>
+                                <td class="priority">Increase Priority</td>
                             </thead>
                     </HeaderTemplate>
                     <FooterTemplate>
                         </table>
+
+                        <asp:Label ID="lblEmptyData" Text="No Data To Display" runat="server" Visible="false"> </asp:Label>
+
                     </FooterTemplate>
                     <ItemTemplate>
                         <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
                             <td class="Job">
-                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 500, true) %>
                             </td>
                             <td class="category">
                                 <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
@@ -197,15 +266,20 @@
                             <td class="priority">
                                 <%# (Container.DataItem as Sitecore.Jobs.Job).Options.Priority.ToString() %>
                             </td>
-                            <td>
-                                <asp:Button ID="btnPriority" runat="server" Text="Priority UP" OnCommand="btn_Click" CommandName="btnPriority" CommandArgument='<%# Eval("Name") %>'
+                            <td class="priority">
+
+                                <asp:Button ID="btnPriority" runat="server" Text="Priority UP" OnCommand="btn_Click" CommandName="btnPriority" CommandArgument='<%# GetHandle(Container.DataItem as Sitecore.Jobs.Job) %>'
                                     BackColor="Blue" ForeColor="White" Width="100px" Height="30px" />
                             </td>
                         </tr>
                     </ItemTemplate>
                 </asp:Repeater>
             </div>
+        
+            <br />
+
             <hr />
+            <br />
             <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
                 <div style="float: left; width: 200px; padding-top: 4px">
                     <h2>Finished Jobs</h2>
@@ -233,7 +307,7 @@
                     <ItemTemplate>
                         <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
                             <td class="Job">
-                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 50, true) %>
+                                <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 500, true) %>
                             </td>
                             <td class="category">
                                 <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Category, 50, true) %>
@@ -272,6 +346,18 @@
         this.ShowRefreshStatus(stringBuilder);
         this.lt.Text = stringBuilder.ToString();
 
+ 
+
+    }
+
+    protected override void OnInit(EventArgs e)
+
+    {
+
+        CheckSecurity(true); //Required!
+
+        base.OnInit(e);
+
     }
 
     public IEnumerable<Sitecore.Jobs.Job> FinishedJobs
@@ -290,6 +376,25 @@
             return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).Where(job => job.Status.State == Sitecore.Jobs.JobState.Queued).OrderBy(job => job.QueueTime);
         }
     }
+    public int QueuedCount { get; set; }
+
+    public List<Sitecore.Jobs.Job> Top100QueuedJobs
+    {
+        get
+        {
+            List<Sitecore.Jobs.Job> Jobs = Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).Where(job => job.Status.State == Sitecore.Jobs.JobState.Queued).OrderBy(job => job.QueueTime).ToList();
+           
+            QueuedCount = Jobs.Count();
+            if (Jobs != null && Jobs.Count() > 100)
+            {
+                return Jobs.Take(100).ToList();
+            }
+            else
+            {
+                return Jobs;
+            }
+        }
+    }
 
 
     public IEnumerable<Sitecore.Jobs.Job> Jobs
@@ -297,7 +402,17 @@
         get
         {
             return Sitecore.Jobs.JobManager.GetJobs().Where(job => job.IsDone == false).Where(job => job.Status.State != Sitecore.Jobs.JobState.Queued).OrderBy(job => job.QueueTime);
+
         }
+
+        }
+
+    protected string GetHandle(Sitecore.Jobs.Job job)
+
+    {
+
+        return string.Format("{0}", job.Handle.ToString());
+
     }
 
     protected string GetJobText(Sitecore.Jobs.Job job)
@@ -337,7 +452,7 @@
         {
             return "#00f";
         }
-        return "#000";
+        return "Green";
     }
 
     protected void cbShowFinished_CheckedChanged(object sender, EventArgs e)
@@ -384,22 +499,35 @@
 
     protected string IncreasePriority(string runningJobName)
     {
-        var runningJob = Sitecore.Jobs.JobManager.GetJob(runningJobName);
-        if (runningJob != null)
+        var message = "<br>";
+        var newHandle = Sitecore.Handle.Parse(runningJobName);
+        if (newHandle == null)
         {
-            Response.Write("Current Job is :" + runningJob.Name);
-            runningJob.Options.Priority = System.Threading.ThreadPriority.Highest;
+            message += "<br>Current Job is not found";
+ 
         }
         else
         {
-            Response.Write("Current Job is not found");
+            var runningJob = Sitecore.Jobs.JobManager.GetJob(newHandle);
+            if (runningJob != null)
+            {
+                message += "<br>Current Job is :" + runningJob.Name;
+                runningJob.QueueTime = runningJob.QueueTime.AddMinutes(-2);
+                // Changing the priority of the job does not help. Sitecore picks up the jobs based on the Queue time.
+ 
+            }
+            else
+            {
+            message += "<br>Current Job is not found";
+ 
+            }
         }
-
-
-        Response.Write("Current Job priority is :" + runningJob.Options.Priority.ToString());
-        //runningJob.Options.Priority = System.Threading.ThreadPriority.Highest;
-        return runningJob.Options.Priority.ToString();
+        ltlMessage.Text = message;
+ 
+        return "";// runningJob.Options.Priority.ToString();
     }
+
+
 
     protected void ShowRefreshStatus(StringBuilder stringBuilder)
     {
