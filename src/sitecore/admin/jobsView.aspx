@@ -433,14 +433,8 @@
     }
     protected string GetProcessed(Sitecore.Jobs.Job job)
     {
-        if (job.Status.Total > 0)
-        {
-            return job.Status.Processed + "/" + job.Status.Total;
-        }
-        else
-        {
-            return "0";
-        }
+        var total = job.Status.Total;
+        return job.Status.Processed + (total > 0L ? " of " + total.ToString() : string.Empty);// + "/" + job.Status.Total;
     }
     protected string GetJobColor(Sitecore.Jobs.Job job)
     {
