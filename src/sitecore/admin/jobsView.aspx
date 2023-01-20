@@ -69,6 +69,9 @@
             width: 50px;
             text-align: center;
         }
+        .number {
+            width: 40px;
+        }
 
         .priority {
             width: 80px;
@@ -160,10 +163,11 @@
 
             <div >
 
-                <asp:Repeater ID="repJobs" runat="server" DataSource="<%# Jobs %>">
+                <asp:Repeater ID="repJobs" runat="server" DataSource="<%# Jobs %>" OnItemDataBound="repJobs_ItemDataBound">
                     <HeaderTemplate>
                         <table>
                             <thead>
+                                <td class="number">No</td>
                                 <td class="job">Job</td>
                                 <td class="category">Category</td>
                                 <td class="status">Status</td>
@@ -180,6 +184,7 @@
                     </FooterTemplate>
                     <ItemTemplate>
                         <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                            <td class="number"><%# Container.ItemIndex + 1 %></td>
                             <td class="Job">
                                 <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 500, true) %>
                             </td>
@@ -205,8 +210,8 @@
             </div>
             <hr />
             <br />
-            <div style="padding: 10px; background-color: #fff; border-bottom: solid 1px #aaa; border-top: solid 1px white">
-                <div style="float: left; width: 200px; padding-top: 4px">
+            <div style="padding: 10px; background-color: #ccc; border: solid 1px #aaa;">
+                <div style="float: left; padding-top: 4px">
                     <h2>There are <%= QueuedCount %> Queued Jobs</h2>
                 </div>
 
@@ -226,10 +231,11 @@
             </div>               
 
             <div style="padding-top: 0px">
-                <asp:Repeater ID="repQueued" runat="server" DataSource="<%# Top100QueuedJobs %>">
+                <asp:Repeater ID="repQueued" runat="server" DataSource="<%# Top100QueuedJobs %>" OnItemDataBound="repQueued_ItemDataBound">
                     <HeaderTemplate>
                         <table>
                             <thead>
+                                <td class="number">No</td>
                                 <td class="job">Job</td>
                                 <td class="category">Category</td>
                                 <td class="status">Status</td>
@@ -248,6 +254,7 @@
                     </FooterTemplate>
                     <ItemTemplate>
                         <tr style="background-color: white; color: <%# GetJobColor((Container.DataItem as Sitecore.Jobs.Job)) %>" title="<%# GetJobText((Container.DataItem as Sitecore.Jobs.Job)) %>">
+                            <td class="number"><%# Container.ItemIndex + 1 %></td>
                             <td class="Job">
                                 <%# Sitecore.StringUtil.Clip((Container.DataItem as Sitecore.Jobs.Job).Name, 500, true) %>
                             </td>
@@ -430,6 +437,29 @@
         foreach (string s in job.Status.Messages)
             sb.AppendLine(s);
         return sb.ToString();
+    }
+
+    protected void repJobs_ItemDataBound(object sender, RepeaterItemEventArgs e)
+    {
+        if (repJobs.Items.Count < 1)
+        {
+            if (e.Item.ItemType == ListItemType.Footer)
+            {
+                Label lblFooter = (Label)e.Item.FindControl("lblEmptyData");
+                lblFooter.Visible = true;
+            }
+        }
+    }
+    protected void repQueued_ItemDataBound(object sender, RepeaterItemEventArgs e)
+    {
+        if (repQueued.Items.Count < 1)
+        {
+            if (e.Item.ItemType == ListItemType.Footer)
+            {
+                Label lblFooter = (Label)e.Item.FindControl("lblEmptyData");
+                lblFooter.Visible = true;
+            }
+        }
     }
     protected string GetProcessed(Sitecore.Jobs.Job job)
     {
